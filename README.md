@@ -8,7 +8,7 @@
 
 | Name | Student ID | Role |
 |------|------------|------|
-| Amos Fiifi Addo | 22019500 | Group Leader |
+| Amos Fiifi Addo | 22019500 | Project Manager |
 | Emmanuel Grant Boamah | 22154941 | Knowledge Engineer |
 | Maa Afia Amoako-Antwi | 22049822 | Knowledge Engineer |
 | Prince Elikplim Amuzu | 22107096 | Programmer |
