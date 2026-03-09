@@ -1,9 +1,6 @@
 # Knowledge Engineering Report
 ## DCIT 313 — Artificial Intelligence
 ### Cafeteria Menu Advisor Expert System
-**Version 1.0 | March 2026**
-
-**Knowledge Engineers:** Emmanuel Grant Boamah, [Other Knowledge Engineer Name]
 
 ---
 
