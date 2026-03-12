@@ -46,4 +46,46 @@ The following sources were used to acquire, verify, and structure the domain kno
 
 ---
 
+## 3. Knowledge Representation
 
+### 3.1 Representation Technique
+
+The system uses **Production Rules (IF–THEN rules)** implemented as **Prolog Horn clauses**. This was chosen because:
+
+- Production rules naturally model the decision-making process of a dietary advisor.
+- Prolog's built-in backtracking and unification make rule evaluation efficient.
+- Rules can be grouped by priority for conflict resolution.
+
+### 3.2 Knowledge Layers
+
+The knowledge base is organized into three distinct layers:
+
+```
+┌──────────────────────────────────────────────┐
+│  Layer 1: Fact Base (Dynamic)                │
+│  User inputs asserted at runtime per session │
+│  e.g., user_preference(category, gym)        │
+├──────────────────────────────────────────────┤
+│  Layer 2: Meal Database (Static)             │
+│  15 structured meal facts (meal/6 predicate) │
+│  e.g., meal(m2, 'Grilled Chicken...', ...)   │
+├──────────────────────────────────────────────┤
+│  Layer 3: Rule Base (Static)                 │
+│  12 production rules + safety guard          │
+│  Encoded as Prolog Horn clauses              │
+└──────────────────────────────────────────────┘
+```
+
+### 3.3 User Input Categories
+
+Knowledge acquisition identified five key user attributes:
+
+| Attribute | Values | Source |
+|-----------|--------|--------|
+| Student Category | `veg`, `non_veg`, `gym`, `none` | Student surveys |
+| Nutritional Goal | `high_protein`, `low_carb`, `low_fat`, `balanced` | Nutritional literature |
+| Health Objective | `wl` (weight loss), `wg` (weight gain), `none` | Fitness guides, interviews |
+| Meal Type | `breakfast`, `lunch`, `dinner`, `snack` | Cafeteria menu observation |
+| Convenience | `quick`, `none` | Student surveys |
+
+---
