@@ -1,46 +1,93 @@
 from pyswip import Prolog
 from pathlib import Path
 import threading
+import logging
 
-KB = Path(__file__).parent.parent / 'knowledge_base' / 'cafeteria_kb.pl'
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+KB = Path(__file__).parent.parent.parent / 'knowledge_base/cafeteria_kb.pl'
 _lock = threading.Lock() 
-_pl = Prolog()
-_pl.consult(str(KB))
+_pl = None  # Lazy init
+
+def _init_prolog():
+    global _pl
+    if _pl is None:
+        with _lock:
+            if _pl is None:
+                try:
+                    _pl = Prolog()
+                    if not KB.exists():
+                        raise FileNotFoundError(f"KB missing: {KB}")
+                    _pl.consult(str(KB))
+                    logger.info(f"Prolog KB loaded: {KB}")
+                except Exception as e:
+                    logger.error(f"Prolog init failed: {e}")
+                    raise
 
 
 def query_recommendations(prefs: dict) -> dict:
-    """
-    prefs keys: category, goal, health, meal_type, convenience
-    Returns: {meals: [...], weekly_plan: {...}}
-    """
+    valid_keys = {'category', 'goal', 'health', 'meal_type', 'convenience'}
+    if not all(k in valid_keys for k in prefs):
+        raise ValueError(f"Invalid prefs keys: {set(prefs) - valid_keys}")
+    
+    _init_prolog()
+    
     with _lock:
         try:
-            # 1. Assert user preferences as Prolog dynamic facts
+            # 1. Assert quoted atoms
             for key, val in prefs.items():
-                _pl.assertz(f'user_preference({key}, {val})')
+                fact = f"user_preference('{key}', '{val}')"
+                _pl.assertz(fact)
+                logger.debug(f"Asserted: {fact}")
             
-            # 2. Query safe recommendations (forward chaining fires here)
-            results = list(_pl.query('safe_recommend(ID, Name, Reason)'))
+            # 2. Safe recommendations
+            safe_results = list(_pl.query('safe_recommend(ID, Name, Reason)'))
             
-            # 3. Fallback: balanced diet if nothing matched
+            # 3. Fallback: match KB pattern
+            if not safe_results:
+                fallback_results = list(_pl.query('recommend(ID, Name, Reason)'))
+            else:
+                fallback_results = []
+            
+            results = safe_results or fallback_results
+            
             if not results:
-                results = list(_pl.query(
-                    'recommend(ID, Name, \'General: balanced diet meal\')'))
-            
-            # Handle case where even fallback returns nothing
-            if not results:
+                logger.warning("No recommendations found")
                 return {'meals': [], 'weekly_plan': {}}
             
-            # 4. Weekly plan
-            plan_raw = list(_pl.query('weekly_plan(Plan)'))
-            plan = {}
-            if plan_raw:
-                for pair in plan_raw[0]['Plan']:
-                    plan[str(pair.args[0])] = str(pair.args[1])
+            # 4. Parse meals (robust)
+            meals = []
+            for r in results:
+                try:
+                    meals.append({
+                        'id': str(r['ID']),
+                        'name': str(r['Name']),
+                        'reason': str(r['Reason'])
+                    })
+                except KeyError as e:
+                    logger.warning(f"Missing binding in result: {e}")
             
-            meals = [{'id': str(r['ID']), 'name': str(r['Name']),
-                      'reason': str(r['Reason'])} for r in results]
+            # 5. Weekly plan (robust)
+            plan = {}
+            plan_raw = list(_pl.query('weekly_plan(Plan)'))
+            if plan_raw:
+                try:
+                    plan_list = plan_raw[0].get('Plan', [])
+                    for i, pair in enumerate(plan_list):
+                        if hasattr(pair, 'args') and len(pair.args) == 2:
+                            day = str(pair.args[0])
+                            meal = str(pair.args[1])
+                            plan[day] = meal
+                        else:
+                            logger.warning(f"Unexpected plan pair at {i}: {pair}")
+                except (IndexError, AttributeError) as e:
+                    logger.warning(f"Plan parse error: {e}")
+            
+            logger.info(f"Returning {len(meals)} meals, plan: {len(plan)} days")
             return {'meals': meals, 'weekly_plan': plan}
+        except Exception as e:
+            logger.error(f"Query failed: {e}")
+            return {'meals': [], 'weekly_plan': {}, 'error': str(e)}
         finally:
-            # ALWAYS retract — prevents preference bleed between users
             _pl.retractall('user_preference(_, _)')
