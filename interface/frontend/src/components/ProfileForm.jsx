@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { ALLERGY_OPTIONS } from '../data/meals';
 
 export default function ProfileForm({ onComplete }) {
   const [form, setForm]     = useState({ name: '', age: '', weight: '', allergies: [] });
@@ -7,15 +6,6 @@ export default function ProfileForm({ onComplete }) {
   const nameRef             = useRef(null);
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
-
-  const toggleAllergy = (val) => {
-    setForm(f => ({
-      ...f,
-      allergies: f.allergies.includes(val)
-        ? f.allergies.filter(a => a !== val)
-        : [...f.allergies, val],
-    }));
-  };
 
   const validate = () => {
     const e = {};
@@ -37,7 +27,7 @@ export default function ProfileForm({ onComplete }) {
     <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg shadow-orange-100 border border-white p-6 fade-up">
       {/* Greeting */}
       <div className="text-center mb-6">
-        <div className="text-5xl mb-3">👋</div>
+        
         <h2 className="display-font text-2xl text-gray-800">Let's get to know you</h2>
         <p className="text-sm text-gray-400 mt-1">A few quick details before your personalised meal plan</p>
       </div>
@@ -100,35 +90,6 @@ export default function ProfileForm({ onComplete }) {
             </div>
             {errors.weight && <p className="text-xs text-rose-500 mt-1">{errors.weight}</p>}
           </div>
-        </div>
-
-        {/* Allergies */}
-        <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">
-            Allergies{' '}
-            <span className="text-gray-300 font-normal normal-case">(select all that apply)</span>
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {ALLERGY_OPTIONS.map(a => {
-              const active = form.allergies.includes(a.value);
-              return (
-                <button
-                  key={a.value}
-                  onClick={() => toggleAllergy(a.value)}
-                  className={`flex flex-col items-center gap-1 py-2.5 px-2 rounded-xl border-2 text-xs font-medium transition-all
-                    ${active
-                      ? 'border-orange-400 bg-orange-50 text-orange-700'
-                      : 'border-gray-100 bg-white text-gray-500 hover:border-orange-200'}`}
-                >
-                  <span className="text-xl">{a.icon}</span>
-                  {a.label}
-                </button>
-              );
-            })}
-          </div>
-          {form.allergies.length === 0 && (
-            <p className="text-xs text-gray-300 mt-1.5 text-center">None selected — no allergies</p>
-          )}
         </div>
       </div>
 

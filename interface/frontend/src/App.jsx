@@ -22,15 +22,17 @@ export default function App() {
     const newPrefs = { ...prefs, [STEPS[stepIndex]]: selected };
     setPrefs(newPrefs);
     setTransitioning(true);
-    setTimeout(() => {
-      if (isLast) {
-        setResults(runInference(newPrefs));
-      } else {
-        setStepIndex(i => i + 1);
-        setSelected(null);
-      }
-      setTransitioning(false);
-    }, 200);
+        setTimeout(async () => {
+          if (isLast) {
+            setTransitioning(true); // Keep loading during async
+            const apiResults = await runInference(newPrefs);
+            setResults(apiResults);
+          } else {
+            setStepIndex(i => i + 1);
+            setSelected(null);
+          }
+          setTransitioning(false);
+        }, 200);
   };
 
   const handleBack = () => {
@@ -51,12 +53,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 flex flex-col">
+    <div className=" md:grid md:grid-cols-2 justify-center items-center min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 flex flex-col">
 
       {/* ── Header ── */}
       <header className="pt-8 pb-2 px-4 text-center fade-up">
         <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur rounded-full px-4 py-1.5 text-xs font-medium text-orange-600 border border-orange-100 mb-4">
-          🏫 DCIT 313 · Expert System
+          Optitech Solutions Expert System  
         </div>
         <h1 className="display-font text-3xl md:text-4xl text-gray-800 leading-tight">
           Cafeteria Menu<br />Advisor
@@ -67,7 +69,7 @@ export default function App() {
       </header>
 
       {/* ── Main ── */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6">
+      <main className=" items-center justify-center px-4 py-2">
         <div className="w-full max-w-md">
 
           {/* Phase 1 — Profile */}
@@ -101,10 +103,6 @@ export default function App() {
         </div>
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="text-center pb-6 text-xs text-gray-300">
-        Group Project · DCIT 313 Artificial Intelligence · March 2026
-      </footer>
     </div>
   );
 }
