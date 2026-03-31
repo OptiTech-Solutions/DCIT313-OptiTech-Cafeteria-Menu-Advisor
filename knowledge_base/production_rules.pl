@@ -123,18 +123,50 @@ recommend(ID, Name, 'Convenience: quick meal') :-
     user_preference(convenience, quick),
     meal(ID, Name, veg, _, _, snack).
 
+%% unique_recommend(ID, Name, Reason)
+%% Finds the FIRST successful reason for a meal and stops looking for others.
+unique_recommend(ID, Name, Reason) :-
+    meal(ID, Name, _, _, _, _), % Pick a meal from the DB
+    once(safe_recommend(ID, Name, Reason)). % Find the first reason it's recommended and STOP
+
 
 %% ══════════════════════════════════════════════
 %%  SAFETY GUARD
 %% ══════════════════════════════════════════════
+
+%% pref_match(Type, MealValue)
+%% Succeeds if the user has no preference, or if the preference matches the meal.
+pref_match(Type, MealValue) :-
+    (user_preference(Type, Pref), Pref \= none) 
+    -> MealValue = Pref 
+    ;  true.
+
+%% gym_match(GymStatus)
+%% If category is gym, the meal MUST be gym-suitable ('yes').
+gym_match(GymStatus) :-
+    user_preference(category, gym)
+    -> GymStatus = yes
+    ;  true.
 
 %% unsafe/1 — Prevents vegetarians from receiving meat meals.
 unsafe(ID) :-
     user_preference(category, veg),
     meal(ID, _, non_veg, _, _, _).
 
-%% safe_recommend/3 — USE THIS from Python, not recommend/3 directly.
-%% Filters out any recommendation that violates safety constraints.
+%% Helper to ensure ALL active preferences are satisfied
+all_prefs_match(Cat, Goal, Gym, Type) :-
+    pref_match(meal_type, Type),
+    pref_match(goal, Goal),
+    pref_match(category, Cat),
+    gym_match(Gym).
+
 safe_recommend(ID, Name, Reason) :-
+    % 1. Does it match at least one of our priority rules?
     recommend(ID, Name, Reason),
-    \+ unsafe(ID).
+    
+    % 2. Pull the actual data for that specific meal
+    meal(ID, Name, Cat, Goal, Gym, Type),
+    
+    % 3. STRICTOR GUARD: It MUST pass every active preference
+    \+ unsafe(ID),
+    all_prefs_match(Cat, Goal, Gym, Type).

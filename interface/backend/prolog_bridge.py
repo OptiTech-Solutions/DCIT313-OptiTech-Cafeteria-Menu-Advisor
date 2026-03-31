@@ -26,7 +26,50 @@ def _init_prolog():
                     raise
 
 
-def qquery_recommendations(prefs: dict) -> dict:
+def _assert_preferences(prefs: dict):
+    """Sets the user preferences in the Prolog KB."""
+    for key, val in prefs.items():
+        fact = f"user_preference('{key}', '{val}')"
+        _pl.assertz(fact)
+        logger.debug(f"Asserted: {fact}")
+
+def _fetch_recommendations():
+    """Queries Prolog for recommendations with a fallback logic."""
+    safe_results = list(_pl.query('unique_recommend(ID, Name, Reason)'))
+    if not safe_results:
+        return list(_pl.query('recommend(ID, Name, Reason)'))
+    return safe_results
+
+def _aggregate_meal_reasons(results: list) -> list:
+    """Consolidates reasons for meals with the same ID."""
+    meals_dict = {}
+    for r in results:
+        try:
+            meal_id = str(r['ID'])
+            meal_name = str(r['Name'])
+            meal_reason = str(r['Reason'])
+
+            if meal_id not in meals_dict:
+                meals_dict[meal_id] = {
+                    'id': meal_id,
+                    'name': meal_name,
+                    'reasons': [meal_reason]
+                }
+            else:
+                if meal_reason not in meals_dict[meal_id]['reasons']:
+                    meals_dict[meal_id]['reasons'].append(meal_reason)
+        except (KeyError, Exception) as e:
+            logger.warning(f"Error parsing result row: {e}")
+
+    # Format output by joining reasons and cleaning up list objects
+    final_meals = []
+    for meal in meals_dict.values():
+        meal['reason'] = " & ".join(meal['reasons'])
+        del meal['reasons']
+        final_meals.append(meal)
+    return final_meals
+
+def query_recommendations(prefs: dict) -> dict:
     valid_keys = {'category', 'goal', 'health', 'meal_type', 'convenience'}
     if not all(k in valid_keys for k in prefs):
         raise ValueError(f"Invalid prefs keys: {set(prefs) - valid_keys}")
@@ -35,71 +78,21 @@ def qquery_recommendations(prefs: dict) -> dict:
     
     with _lock:
         try:
-            # 1. Assert quoted atoms
-            for key, val in prefs.items():
-                fact = f"user_preference('{key}', '{val}')"
-                _pl.assertz(fact)
-                logger.debug(f"Asserted: {fact}")
+            # 1. Assert preferences
+            _assert_preferences(prefs)
             
-            # 2. Safe recommendations
-            safe_results = list(_pl.query('safe_recommend(ID, Name, Reason)'))
-            
-            # 3. Fallback: match KB pattern
-            if not safe_results:
-                fallback_results = list(_pl.query('recommend(ID, Name, Reason)'))
-            else:
-                fallback_results = []
-            
-            results = safe_results or fallback_results
-            
+            # 2. Query and handle empty results
+            results = _fetch_recommendations()
             if not results:
                 logger.warning("No recommendations found")
                 return {'meals': [], 'weekly_plan': {}}
             
-            # 4. Parse and filter meals by meal_type if specified
-            meals = []
-            user_meal_type = prefs.get('meal_type')
-            for r in results:
-                try:
-                    meal_id = str(r['ID'])
-                    # Query meal_type for this ID
-                    meal_query = _pl.query(f"meal({meal_id}, _, _, _, _, MealType)")
-                    meal_types = [str(mt['MealType']) for mt in meal_query]
-                    if not meal_types:
-                        logger.warning(f"No meal fact for ID: {meal_id}")
-                        continue
-                    # Take first meal_type (meals.pl has unique IDs)
-                    actual_type = meal_types[0]
-                    if user_meal_type and actual_type != user_meal_type:
-                        logger.debug(f"Filtered {meal_id} ({actual_type}): user wants {user_meal_type}")
-                        continue
-                    meals.append({
-                        'id': meal_id,
-                        'name': str(r['Name']),
-                        'reason': str(r['Reason'])
-                    })
-                except (KeyError, Exception) as e:
-                    logger.warning(f"Meal filter error for {r.get('ID', 'unknown')}: {e}")
+            # 3. Aggregate and format
+            final_meals = _aggregate_meal_reasons(results)
+            
+            # Note: You can add your weekly_plan parsing here as well
+            return {'meals': final_meals}
 
-            
-            # 5. Weekly plan (robust)
-            plan = {}
-            plan_raw = list(_pl.query('weekly_plan(Plan)'))
-            if plan_raw:
-                try:
-                    plan_list = plan_raw[0].get('Plan', [])
-                    for i, pair in enumerate(plan_list):
-                        if hasattr(pair, 'args') and len(pair.args) == 2:
-                            day = str(pair.args[0])
-                            meal = str(pair.args[1])
-                            plan[day] = meal
-                        else:
-                            logger.warning(f"Unexpected plan pair at {i}: {pair}")
-                except (IndexError, AttributeError) as e:
-                    logger.warning(f"Plan parse error: {e}")
-            
-            logger.info(f"Returning {len(meals)} meals (filtered), plan: {len(plan)} days")
-            return {'meals': meals, 'weekly_plan': plan}
         except Exception as e:
             logger.error(f"Query failed: {e}")
             return {'meals': [], 'weekly_plan': {}, 'error': str(e)}
