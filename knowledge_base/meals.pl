@@ -53,3 +53,25 @@ meal(m14, 'Protein Smoothie with Banana and Peanut Butter',
 
 meal(m15, 'Grilled Tilapia with Salad',
      non_veg,  low_carb,     yes,      dinner).
+
+%% Added low-fat meals to broaden coverage
+meal(m16, 'Grilled Vegetable Wrap',
+     veg,      low_fat,     moderate, lunch).
+
+meal(m17, 'Herbed Chicken with Quinoa',
+     non_veg,  low_fat,     yes,      dinner).
+
+meal(m18, 'Tomato Basil Soup with Whole Wheat Toast',
+     veg,      low_fat,     moderate, dinner).
+
+%% Allergen facts (meal_allergen/2)
+%% Allergens: nuts | dairy | gluten | seafood
+meal_allergen(m1, nuts).
+meal_allergen(m5, nuts).
+meal_allergen(m11, dairy).
+meal_allergen(m11, gluten).
+meal_allergen(m14, nuts).
+meal_allergen(m6, seafood).
+meal_allergen(m15, seafood).
+meal_allergen(m16, gluten).
+meal_allergen(m18, gluten).
