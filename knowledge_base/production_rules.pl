@@ -1,17 +1,17 @@
-%%  production_rules.pl  —  IF-THEN Production Rules
-%%  ────────────────────────────────────────────────────
+%%  production_rules.pl  �  IF-THEN Production Rules
+%%  ------------------------------------------------------------
 %%  All reasoning intelligence lives here as Prolog Horn clauses.
 %%  Rules are ordered by priority:
-%%      Priority 1 (highest)  —  Gym Student Rules       (G1–G4)
-%%      Priority 2            —  Vegetarian Rules         (V1–V3)
-%%      Priority 2            —  Non-Vegetarian Rules     (N1–N2)
-%%      Priority 3            —  Health-Based Rules       (H1–H3)
-%%      Priority 4 (lowest)   —  Convenience Rules        (C1)
+%%      Priority 1 (highest)  �  Gym Student Rules       (G1�G4)
+%%      Priority 2            �  Vegetarian Rules         (V1�V4)
+%%      Priority 2            �  Non-Vegetarian Rules     (N1�N3)
+%%      Priority 3            �  Health-Based Rules       (H1�H4)
+%%      Priority 4 (lowest)   �  Convenience Rules        (C1)
 
-%% ──────────────────────────────────────────────
+%% ------------------------------------------------------------
 %%  Dynamic Facts Declaration
-%% ──────────────────────────────────────────────
-%%  User preferences are asserted at runtime — never hardcoded.
+%% ------------------------------------------------------------
+%%  User preferences are asserted at runtime � never hardcoded.
 
 :- dynamic user_preference/2.
 
@@ -20,11 +20,12 @@
 %% user_preference(health,      wl | wg | none).
 %% user_preference(meal_type,   breakfast | lunch | dinner | snack).
 %% user_preference(convenience, quick | none).
+%% user_preference(allergy,     none | nuts | dairy | gluten | seafood).
 
 
-%% ══════════════════════════════════════════════
-%%  PRIORITY 1 — Gym Student Rules
-%% ══════════════════════════════════════════════
+%% ============================================================
+%%  PRIORITY 1 � Gym Student Rules
+%% ============================================================
 
 %% G1: GYM + High Protein -> non_veg high-protein gym-suitable meals
 recommend(ID, Name, 'Gym: high protein meal') :-
@@ -52,9 +53,9 @@ recommend(ID, Name, 'Gym: breakfast meal') :-
     meal(ID, Name, veg, _, yes, breakfast).
 
 
-%% ══════════════════════════════════════════════
-%%  PRIORITY 2 — Vegetarian Rules
-%% ══════════════════════════════════════════════
+%% ============================================================
+%%  PRIORITY 2 � Vegetarian Rules
+%% ============================================================
 
 %% V1: VEG + High Protein -> veg high-protein meals
 recommend(ID, Name, 'Vegetarian: high protein meal') :-
@@ -74,10 +75,16 @@ recommend(ID, Name, 'Vegetarian: dinner option') :-
     user_preference(meal_type, dinner),
     meal(ID, Name, veg, _, _, dinner).
 
+%% V4: VEG + Low Fat -> veg low-fat meals
+recommend(ID, Name, 'Vegetarian: low fat meal') :-
+    user_preference(category, veg),
+    user_preference(goal, low_fat),
+    meal(ID, Name, veg, low_fat, _, _).
 
-%% ══════════════════════════════════════════════
-%%  PRIORITY 2 — Non-Vegetarian Rules
-%% ══════════════════════════════════════════════
+
+%% ============================================================
+%%  PRIORITY 2 � Non-Vegetarian Rules
+%% ============================================================
 
 %% N1: NON_VEG + High Protein -> non_veg high-protein meals
 recommend(ID, Name, 'Non-veg: high protein meal') :-
@@ -91,10 +98,16 @@ recommend(ID, Name, 'Non-veg: low carb meal') :-
     user_preference(goal, low_carb),
     meal(ID, Name, non_veg, low_carb, _, _).
 
+%% N3: NON_VEG + Low Fat -> non_veg low-fat meals
+recommend(ID, Name, 'Non-veg: low fat meal') :-
+    user_preference(category, non_veg),
+    user_preference(goal, low_fat),
+    meal(ID, Name, non_veg, low_fat, _, _).
 
-%% ══════════════════════════════════════════════
-%%  PRIORITY 3 — Health-Based Rules
-%% ══════════════════════════════════════════════
+
+%% ============================================================
+%%  PRIORITY 3 � Health-Based Rules
+%% ============================================================
 
 %% H1: Weight Loss + Low Carb -> non_veg low-carb gym-suitable meals
 recommend(ID, Name, 'Health: weight loss low carb') :-
@@ -113,10 +126,16 @@ recommend(ID, Name, 'General: balanced diet meal') :-
     user_preference(goal, balanced),
     meal(ID, Name, veg, balanced, _, _).
 
+%% H4: Weight Loss + Low Fat -> low-fat meals (any category)
+recommend(ID, Name, 'Health: weight loss low fat') :-
+    user_preference(health, wl),
+    user_preference(goal, low_fat),
+    meal(ID, Name, _, low_fat, _, _).
 
-%% ══════════════════════════════════════════════
-%%  PRIORITY 4 — Convenience Rules
-%% ══════════════════════════════════════════════
+
+%% ============================================================
+%%  PRIORITY 4 � Convenience Rules
+%% ============================================================
 
 %% C1: Quick Meal -> veg snack meals
 recommend(ID, Name, 'Convenience: quick meal') :-
@@ -124,16 +143,22 @@ recommend(ID, Name, 'Convenience: quick meal') :-
     meal(ID, Name, veg, _, _, snack).
 
 
-%% ══════════════════════════════════════════════
+%% ============================================================
 %%  SAFETY GUARD
-%% ══════════════════════════════════════════════
+%% ============================================================
 
-%% unsafe/1 — Prevents vegetarians from receiving meat meals.
+%% unsafe/1 � Prevents vegetarians from receiving meat meals.
 unsafe(ID) :-
     user_preference(category, veg),
     meal(ID, _, non_veg, _, _, _).
 
-%% safe_recommend/3 — USE THIS from Python, not recommend/3 directly.
+%% unsafe/1 � Filters meals containing allergens selected by user.
+unsafe(ID) :-
+    user_preference(allergy, Allergy),
+    Allergy \= none,
+    meal_allergen(ID, Allergy).
+
+%% safe_recommend/3 � USE THIS from Python, not recommend/3 directly.
 %% Filters out any recommendation that violates safety constraints.
 safe_recommend(ID, Name, Reason) :-
     recommend(ID, Name, Reason),
