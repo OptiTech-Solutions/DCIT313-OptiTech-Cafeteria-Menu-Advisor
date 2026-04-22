@@ -1,4 +1,4 @@
-# Cafeteria Menu Advisor — Expert System
+9# Cafeteria Menu Advisor — Expert System
 
 **DCIT 313 – Artificial Intelligence | Group Project**
 
@@ -8,13 +8,13 @@
 
 | Name | Student ID | Role |
 |------|------------|------|
-| Amos Fiifi Addo | 22019500 | Project Manager |
-| Emmanuel Grant Boamah | 22154941 | Knowledge Engineer |
-| Maa Afia Amoako-Antwi | 22049822 | Knowledge Engineer |
-| Prince Elikplim Amuzu | 22107096 | Programmer |
-| Jeffrey Yaw Eshun | 22124876 | Programmer |
-| Michael Obiri Addo | 22182561 | Programmer |
-| Barbara Elizabeth Korlekie Sackey | 22012722 | Programmer |
+| Amos Fiifi Addo (afaddo)| 22019500 | Project Manager |
+| Emmanuel Grant Boamah(GranTech-hub) | 22154941 | Knowledge Engineer |
+| Maa Afia Amoako-Antwi(amoakoantwimaaafia) | 22049822 | Knowledge Engineer |
+| Prince Elikplim Amuzu (eliamuzu)| 22107096 | Programmer |
+| Jeffrey Yaw Eshun(1of1jey) | 22124876 | Programmer |
+| Michael Obiri Addo(obirimike) | 22182561 | Programmer |
+| Barbara Elizabeth Korlekie Sackey(Kiekie-28) | 22012722 | Programmer |
 
 ---
 
