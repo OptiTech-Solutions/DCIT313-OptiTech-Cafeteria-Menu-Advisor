@@ -1,16 +1,4 @@
-from flask import Flask
-from flask_cors import CORS
-from routes import register_routes
-from prolog_bridge import query_recommendations  # For testing
-
-app = Flask(__name__, static_url_path='')
-CORS(app)
-
-register_routes(app)
-
-@app.route('/')
-def index():
-    return {"Greeting": "Hello"}
+from server import app
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

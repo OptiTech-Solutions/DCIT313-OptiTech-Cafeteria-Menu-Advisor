@@ -1,12 +1,4 @@
 
-// export const ALLERGY_OPTIONS = [
-//   { value: "nuts",   label: "Nuts",   icon: "🥜" },
-//   { value: "dairy",  label: "Dairy",  icon: "🥛" },
-//   { value: "eggs",   label: "Eggs",   icon: "🥚" },
-//   { value: "fish",   label: "Fish",   icon: "🐟" },
-//   { value: "gluten", label: "Gluten", icon: "🌾" },
-//   { value: "soy",    label: "Soy",    icon: "🫘" },
-// ];
 
 export const STEPS = ["category", "goal", "health", "meal_type", "convenience"];
 
