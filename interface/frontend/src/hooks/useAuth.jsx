@@ -28,8 +28,13 @@ function normalizeSession(data, fallback = {}) {
   }
 }
 
+const DEFAULT_SESSION = {
+  token: 'expert-system-session',
+  user: { name: 'Student Advisor', email: 'student@ug.edu.gh' },
+}
+
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(() => loadSession())
+  const [session, setSession] = useState(() => loadSession() || DEFAULT_SESSION)
   const [authLoading, setAuthLoading] = useState(false)
 
   const signIn = async (credentials) => {
