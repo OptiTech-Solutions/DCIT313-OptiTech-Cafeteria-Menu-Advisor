@@ -1,0 +1,13 @@
+{
+  "name": "dcit313-cafeteria-menu-advisor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "DCIT 313 AI Expert System — Cafeteria Menu Advisor",
+  "scripts": {
+    "dev": "npm --prefix interface/frontend run dev",
+    "build": "npm --prefix interface/frontend run build",
+    "preview": "npm --prefix interface/frontend run preview",
+    "backend": "python interface/backend/app.py",
+    "test:backend": "python -m unittest interface/backend/tests/test_prolog_bridge.py"
+  }
+}

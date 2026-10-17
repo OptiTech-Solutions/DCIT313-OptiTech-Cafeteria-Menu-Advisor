@@ -66,3 +66,10 @@ export function getExplanation(prefs, token) {
 export function updateProfile(payload, token) {
   return apiRequest('/profile', { method: 'PUT', body: payload, token })
 }
+
+export function swapMeal(day, currentMeal, prefs) {
+  return apiRequest('/swap-meal', {
+    method: 'POST',
+    body: { day, current_meal: currentMeal, preferences: prefs },
+  })
+}
