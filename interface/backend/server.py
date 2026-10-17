@@ -98,6 +98,14 @@ class CafeteriaApiHandler(BaseHTTPRequestHandler):
             self._send_payload(_json_bytes(result), 200)
             return
 
+        if path in {"/swap-meal", "/api/swap-meal"}:
+            day = data.get("day", "monday")
+            current_meal = data.get("current_meal", "")
+            prefs = data.get("preferences") or LAST_PREFS
+            result = bridge.swap_meal(day, current_meal, prefs)
+            self._send_payload(_json_bytes(result), 200)
+            return
+
         # Backwards-compatibility for auth endpoints so frontend never errors
         if path in {"/login", "/api/login", "/register", "/api/register"}:
             name = data.get("name") or data.get("full_name") or "Student"
