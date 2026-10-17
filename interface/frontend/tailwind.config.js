@@ -7,21 +7,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#1F1B16",
-        sand: "#F6EFE7",
-        saffron: "#F2A154",
-        clay: "#D76C4B",
-        leaf: "#4C8B6F",
-        berry: "#9A4E4E",
-        mist: "#F9F6F1",
+        ink: "#0f172a",       // modern deep slate
+        sand: "#f8fafc",      // clean crisp neutral
+        mist: "#f1f5f9",      // subtle slate-100
+        saffron: "#f59e0b",   // crisp amber
+        clay: "#ea580c",      // modern orange
+        leaf: "#059669",      // crisp emerald
+        berry: "#e11d48",     // modern rose/red
       },
       fontFamily: {
-        display: ['"Fraunces"', "serif"],
-        body: ['"Manrope"', "sans-serif"],
+        display: ['"Plus Jakarta Sans"', 'sans-serif'],
+        body: ['"Plus Jakarta Sans"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {
-        soft: "0 20px 50px rgba(31, 27, 22, 0.12)",
-        card: "0 12px 30px rgba(31, 27, 22, 0.12)",
+        soft: "0 4px 20px -2px rgba(15, 23, 42, 0.06)",
+        card: "0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04)",
+        elevated: "0 10px 30px -4px rgba(15, 23, 42, 0.08)",
       },
     },
   },
