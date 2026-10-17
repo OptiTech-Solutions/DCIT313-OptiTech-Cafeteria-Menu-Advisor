@@ -2,38 +2,31 @@ import { Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
-    <footer className="relative z-10 mt-auto w-full border-t border-ink/10 bg-[#6e5564] text-white">
-      <div className="mx-auto w-full max-w-6xl px-4 py-10">
-        <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.35em] text-white/50">OptiTech</p>
-            <p className="text-2xl font-semibold text-white">Cafeteria Menu Advisor</p>
-            <p className="text-sm text-white/70">
-              Smarter cafeteria choices, grounded in rule-based Prolog inference and clear explanations.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 md:items-end">
-            <p className="text-xs uppercase tracking-[0.35em] text-white/50">Resources</p>
-            <div className="flex flex-wrap gap-3 text-sm font-semibold">
-              <Link
-                to="/terms"
-                className="rounded-full border border-white/20 px-4 py-2 text-white/80 transition hover:border-white/40 hover:text-white"
-              >
-                Terms
-              </Link>
-              <Link
-                to="/privacy"
-                className="rounded-full border border-white/20 px-4 py-2 text-white/80 transition hover:border-white/40 hover:text-white"
-              >
-                Privacy
-              </Link>
+    <footer className="relative z-10 mt-auto w-full border-t border-slate-200/80 bg-white text-slate-600 print:hidden">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white font-bold text-xs">
+              OA
             </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Cafeteria Menu Advisor</p>
+              <p className="text-xs text-slate-500">DCIT 313 AI Expert System — Powered by SWI-Prolog</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-6 text-xs font-medium text-slate-500">
+            <Link to="/recommendations" className="hover:text-slate-900 transition">Recommendations</Link>
+            <Link to="/weekly-plan" className="hover:text-slate-900 transition">Weekly Plan</Link>
+            <Link to="/explanations" className="hover:text-slate-900 transition">Explanations</Link>
+            <Link to="/terms" className="hover:text-slate-900 transition">Terms</Link>
+            <Link to="/privacy" className="hover:text-slate-900 transition">Privacy</Link>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col items-start justify-between gap-2 border-t border-white/10 pt-4 text-xs text-white/50 md:flex-row">
-          <span>� {new Date().getFullYear()} OptiTech Solutions. All rights reserved.</span>
-          <span> Expert Systems Project.</span>
+        <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+          <span>&copy; {new Date().getFullYear()} OptiTech Solutions. All rights reserved.</span>
+          <span>Knowledge Engineering & Rule-Based Inference Project</span>
         </div>
       </div>
     </footer>
