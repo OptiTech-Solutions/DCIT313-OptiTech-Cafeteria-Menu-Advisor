@@ -5,6 +5,7 @@ import hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 
+# pyrefly: ignore[missing-import]
 from knowledge_engine import CafeteriaKnowledgeEngine
 
 engine = CafeteriaKnowledgeEngine()
